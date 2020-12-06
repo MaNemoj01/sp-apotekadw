@@ -1,0 +1,13 @@
+CREATE TABLE [dbo].[Dim_Zaposlenik](
+	[zaposlenik_id] [int] NOT NULL,
+	[ime] [varchar](50) NOT NULL,
+	[prezime] [varchar](50) NOT NULL,
+	[postanski_broj] [int] NOT NULL,
+	[grad] [varchar](50) NOT NULL,
+	[drzava] [varchar](50) NOT NULL,
+	[plata] [float] NOT NULL,
+ CONSTRAINT [PK_Dim_Zaposlenik] PRIMARY KEY CLUSTERED 
+(
+	[zaposlenik_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]

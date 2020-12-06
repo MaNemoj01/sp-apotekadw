@@ -1,0 +1,9 @@
+INSERT INTO Fact_Nabavka
+                  (nabavka_id, dim_vrijeme_id, dim_apoteka_id, dim_lijek_id, dim_dobavljac_id, iznos, kolicina)
+SELECT an.id, dv.vrijeme_id, a.id AS Expr1, l.id AS Expr2, d.id AS Expr3, an.kolicina * l.cijena_nabavna AS Expr4, an.kolicina
+FROM     ApotekaDB.dbo.Lijek AS l INNER JOIN
+                  ApotekaDB.dbo.Apoteka_Narudzba AS an ON l.id = an.lijek_id INNER JOIN
+                  ApotekaDB.dbo.Apoteka_Racun AS ar ON an.apoteka_racun_id = ar.id INNER JOIN
+                  ApotekaDB.dbo.Apoteka AS a ON ar.apoteka_id = a.id AND l.apoteka_id = a.id INNER JOIN
+                  Dim_Vrijeme AS dv ON ar.datum_kupovine = dv.datum AND ar.vrijeme_kupovine = dv.sati INNER JOIN
+                  ApotekaDB.dbo.Dobavljac AS d ON ar.dobavljac_id = d.id

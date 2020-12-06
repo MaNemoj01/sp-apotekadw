@@ -1,0 +1,7 @@
+INSERT INTO Dim_Vrijeme
+                  (sati, datum, dan, mjesec, godina, kvartal)
+SELECT DISTINCT vrijeme_kupovine AS sati, datum_kupovine AS datum, DAY(datum_kupovine) AS dan, MONTH(datum_kupovine) AS mjesec, YEAR(datum_kupovine) AS godina, DATEPART(QUARTER, datum_kupovine) AS kvartal
+FROM     ApotekaDB.dbo.Apoteka_Racun
+UNION
+SELECT DISTINCT vrijeme_kupovine AS sati, datum_kupovine AS datum, DAY(datum_kupovine) AS dan, MONTH(datum_kupovine) AS mjesec, YEAR(datum_kupovine) AS godina, DATEPART(QUARTER, datum_kupovine) AS kvartal
+FROM     ApotekaDB.dbo.Kupac_Racun

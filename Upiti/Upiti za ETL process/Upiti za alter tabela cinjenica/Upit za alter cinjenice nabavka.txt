@@ -1,0 +1,26 @@
+ALTER TABLE [dbo].[Fact_Nabavka]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Nabavka_Dim_Apoteka] FOREIGN KEY([dim_apoteka_id])
+REFERENCES [dbo].[Dim_Apoteka] ([apoteka_id])
+
+
+ALTER TABLE [dbo].[Fact_Nabavka] CHECK CONSTRAINT [FK_Fact_Nabavka_Dim_Apoteka]
+
+
+ALTER TABLE [dbo].[Fact_Nabavka]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Nabavka_Dim_Dobavljac] FOREIGN KEY([dim_dobavljac_id])
+REFERENCES [dbo].[Dim_Dobavljac] ([dobavljac_id])
+
+
+ALTER TABLE [dbo].[Fact_Nabavka] CHECK CONSTRAINT [FK_Fact_Nabavka_Dim_Dobavljac]
+
+
+ALTER TABLE [dbo].[Fact_Nabavka]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Nabavka_Dim_Lijek] FOREIGN KEY([dim_lijek_id])
+REFERENCES [dbo].[Dim_Lijek] ([lijek_id])
+
+
+ALTER TABLE [dbo].[Fact_Nabavka] CHECK CONSTRAINT [FK_Fact_Nabavka_Dim_Lijek]
+
+
+ALTER TABLE [dbo].[Fact_Nabavka]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Nabavka_Dim_Vrijeme] FOREIGN KEY([dim_vrijeme_id])
+REFERENCES [dbo].[Dim_Vrijeme] ([vrijeme_id])
+
+
+ALTER TABLE [dbo].[Fact_Nabavka] CHECK CONSTRAINT [FK_Fact_Nabavka_Dim_Vrijeme]

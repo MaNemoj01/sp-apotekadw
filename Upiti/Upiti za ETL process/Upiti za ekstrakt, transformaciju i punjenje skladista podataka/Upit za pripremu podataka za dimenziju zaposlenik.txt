@@ -1,0 +1,3 @@
+SELECT z.id, z.ime, z.prezime, z.plata, m.naziv as grad, m.drzava, m.postanski_broj
+FROM [Zaposlenik] AS z
+INNER JOIN [Mjesto] AS m ON m.id = z.mjesto_id;

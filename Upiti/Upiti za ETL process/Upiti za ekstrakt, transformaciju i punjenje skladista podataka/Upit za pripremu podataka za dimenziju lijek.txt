@@ -1,0 +1,3 @@
+SELECT l.id, l.naziv, l.cijena_nabavna, l.cijena_prodajna, p.naziv AS proizvodjac
+FROM [Lijek] AS l
+INNER JOIN [Proizvodjac] AS p ON p.id = l.proizvodjac_id;

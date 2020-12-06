@@ -1,0 +1,13 @@
+CREATE TABLE [dbo].[Dim_Vrijeme](
+	[vrijeme_id] [int] IDENTITY(1,1) NOT NULL,
+	[sati] [time](7) NOT NULL,
+	[datum] [date] NOT NULL,
+	[dan] [varchar](50) NOT NULL,
+	[mjesec] [varchar](50) NOT NULL,
+	[godina] [int] NOT NULL,
+	[kvartal] [int] NOT NULL,
+ CONSTRAINT [PK_Dim_Vrijeme] PRIMARY KEY CLUSTERED 
+(
+	[vrijeme_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]

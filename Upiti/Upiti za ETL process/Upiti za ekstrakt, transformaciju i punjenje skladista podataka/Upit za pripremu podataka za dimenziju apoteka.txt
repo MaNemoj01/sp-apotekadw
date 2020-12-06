@@ -1,0 +1,4 @@
+SELECT a.id, a.naziv, m.postanski_broj, m.naziv AS grad, m.drzava, v.ime, v.prezime
+FROM     Apoteka AS a INNER JOIN
+                  Mjesto AS m ON m.id = a.mjesto_id INNER JOIN
+                  Vlasnik_Apoteke AS v ON v.id = a.vlasnik_id

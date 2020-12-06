@@ -1,0 +1,19 @@
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Fact_Nabavka]') AND type in (N'U')) DROP TABLE [dbo].[Fact_Nabavka]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Fact_Prodaja]') AND type in (N'U')) DROP TABLE [dbo].[Fact_Prodaja]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Fact_Promet_Zaposlenika]') AND type in (N'U')) DROP TABLE [dbo].[Fact_Promet_Zaposlenika]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Apoteka]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Apoteka]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Dobavljac]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Dobavljac]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Kupac]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Kupac]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Lijek]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Lijek]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Vrijeme]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Vrijeme]
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Dim_Zaposlenik]') AND type in (N'U')) DROP TABLE [dbo].[Dim_Zaposlenik]
+
+

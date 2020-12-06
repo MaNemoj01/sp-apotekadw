@@ -1,0 +1,26 @@
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Apoteka] FOREIGN KEY([dim_apoteka_id])
+REFERENCES [dbo].[Dim_Apoteka] ([apoteka_id])
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika] CHECK CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Apoteka]
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Lijek] FOREIGN KEY([dim_lijek_id])
+REFERENCES [dbo].[Dim_Lijek] ([lijek_id])
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika] CHECK CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Lijek]
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Vrijeme] FOREIGN KEY([dim_vrijeme_id])
+REFERENCES [dbo].[Dim_Vrijeme] ([vrijeme_id])
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika] CHECK CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Vrijeme]
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika]  WITH CHECK ADD  CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Zaposlenik] FOREIGN KEY([dim_zaposlenik_id])
+REFERENCES [dbo].[Dim_Zaposlenik] ([zaposlenik_id])
+
+
+ALTER TABLE [dbo].[Fact_Promet_Zaposlenika] CHECK CONSTRAINT [FK_Fact_Promet_Zaposlenika_Dim_Zaposlenik]

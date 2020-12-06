@@ -1,0 +1,2915 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="12/6/2020 2:04:02 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-N6FAMUE"
+  DTS:CreatorName="DESKTOP-N6FAMUE\MaNemoj"
+  DTS:DTSID="{9313F78F-83E9-494B-9DA9-9EF87F8E3A96}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="15.0.2000.132"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="25"
+  DTS:VersionGUID="{48E841CF-4018-480C-94AE-006CDF33DB79}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[Apoteka Data Destination]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{7131D962-4532-4F3D-A822-F06701FE9C79}"
+      DTS:ObjectName="Apoteka Data Destination">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Data Source=DESKTOP-N6FAMUE;Initial Catalog=ApotekaDM;Provider=SQLNCLI11.1;Integrated Security=SSPI;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[Apoteka Data Source]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{91B7919C-CFBB-4DE5-A93C-32033E54F280}"
+      DTS:ObjectName="Apoteka Data Source">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Data Source=DESKTOP-N6FAMUE;Initial Catalog=ApotekaDB;Provider=SQLNCLI11.1;Integrated Security=SSPI;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager
+      DTS:refId="Package.ConnectionManagers[DESKTOP-N6FAMUE]"
+      DTS:CreationName="OLEDB"
+      DTS:DTSID="{A84398B0-3777-478B-9B80-69DCFAFCB053}"
+      DTS:ObjectName="DESKTOP-N6FAMUE">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager
+          DTS:ConnectionString="Data Source=DESKTOP-N6FAMUE;Provider=MSOLEDBSQL.1;Integrated Security=SSPI;Auto Translate=False;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Build Vrijeme"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{DCE1A8D3-BDF5-469F-8959-9B2BE5393924}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Build Vrijeme"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2019; © 2019 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{7131D962-4532-4F3D-A822-F06701FE9C79}"
+          SQLTask:SqlStatementSource="INSERT INTO Dim_Vrijeme&#xA;                  (sati, datum, dan, mjesec, godina, kvartal)&#xA;SELECT DISTINCT vrijeme_kupovine AS sati, datum_kupovine AS datum, DAY(datum_kupovine) AS dan, MONTH(datum_kupovine) AS mjesec, YEAR(datum_kupovine) AS godina, DATEPART(QUARTER, datum_kupovine) AS kvartal&#xA;FROM     ApotekaDB.dbo.Apoteka_Racun&#xA;UNION&#xA;SELECT DISTINCT vrijeme_kupovine AS sati, datum_kupovine AS datum, DAY(datum_kupovine) AS dan, MONTH(datum_kupovine) AS mjesec, YEAR(datum_kupovine) AS godina, DATEPART(QUARTER, datum_kupovine) AS kvartal&#xA;FROM     ApotekaDB.dbo.Kupac_Racun" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Kreiraj Fact Nabavka"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{2849a37b-a23d-4baa-a5a8-0d9974476ebd}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Kreiraj Fact Nabavka"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2019; © 2019 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{7131D962-4532-4F3D-A822-F06701FE9C79}"
+          SQLTask:SqlStatementSource="INSERT INTO Fact_Nabavka&#xA;                  (nabavka_id, dim_vrijeme_id, dim_apoteka_id, dim_lijek_id, dim_dobavljac_id, iznos, kolicina)&#xA;SELECT an.id, dv.vrijeme_id, a.id AS Expr1, l.id AS Expr2, d.id AS Expr3, an.kolicina * l.cijena_nabavna AS Expr4, an.kolicina&#xA;FROM     ApotekaDB.dbo.Lijek AS l INNER JOIN&#xA;                  ApotekaDB.dbo.Apoteka_Narudzba AS an ON l.id = an.lijek_id INNER JOIN&#xA;                  ApotekaDB.dbo.Apoteka_Racun AS ar ON an.apoteka_racun_id = ar.id INNER JOIN&#xA;                  ApotekaDB.dbo.Apoteka AS a ON ar.apoteka_id = a.id AND l.apoteka_id = a.id INNER JOIN&#xA;                  Dim_Vrijeme AS dv ON ar.datum_kupovine = dv.datum AND ar.vrijeme_kupovine = dv.sati INNER JOIN&#xA;                  ApotekaDB.dbo.Dobavljac AS d ON ar.dobavljac_id = d.id" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Kreiraj Fact Prodaja"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{F9EE8575-4246-434E-A67D-C4FFFB30B449}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Kreiraj Fact Prodaja"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2019; © 2019 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{7131D962-4532-4F3D-A822-F06701FE9C79}"
+          SQLTask:SqlStatementSource="INSERT INTO Fact_Prodaja&#xA;                  (prodaja_id, dim_vrijeme_id, dim_kupac_id, dim_lijek_id, dim_apoteka_id, iznos, kolicina)&#xA;SELECT kn.id, dv.vrijeme_id, k.id AS Expr1, l.id AS Expr2, a.id AS Expr3, kn.kolicina * l.cijena_prodajna AS Expr4, kn.kolicina&#xA;FROM     ApotekaDB.dbo.Lijek AS l INNER JOIN&#xA;                  ApotekaDB.dbo.Kupac_Narudzba AS kn ON l.id = kn.lijek_id INNER JOIN&#xA;                  ApotekaDB.dbo.Kupac_Racun AS kr ON kn.kupac_racun_id = kr.id INNER JOIN&#xA;                  ApotekaDB.dbo.Kupac AS k ON kr.kupac_id = k.id INNER JOIN&#xA;                  Dim_Vrijeme AS dv ON kr.datum_kupovine = dv.datum AND kr.vrijeme_kupovine = dv.sati INNER JOIN&#xA;                  ApotekaDB.dbo.Apoteka AS a ON kr.apoteka_id = a.id AND l.apoteka_id = a.id" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Kreiraj Fact Promet Zaposlenika"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{c5528fd5-8ae3-4c74-a5b0-ad36d0d5ec6d}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Kreiraj Fact Promet Zaposlenika"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2019; © 2019 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{7131D962-4532-4F3D-A822-F06701FE9C79}"
+          SQLTask:SqlStatementSource="INSERT INTO Fact_Promet_Zaposlenika&#xA;                  (promet_zaposlenika_id, dim_vrijeme_id, dim_lijek_id, dim_apoteka_id, dim_zaposlenik_id, iznos, kolicina)&#xA;SELECT kn.id, dv.vrijeme_id, l.id AS Expr1, a.id AS Expr2, z.id AS Expr3, kn.kolicina * l.cijena_nabavna AS Expr4, kn.kolicina&#xA;FROM     ApotekaDB.dbo.Lijek AS l INNER JOIN&#xA;                  ApotekaDB.dbo.Kupac_Narudzba AS kn ON l.id = kn.lijek_id INNER JOIN&#xA;                  ApotekaDB.dbo.Kupac_Racun AS kr ON kn.kupac_racun_id = kr.id INNER JOIN&#xA;                  ApotekaDB.dbo.Apoteka AS a ON kr.apoteka_id = a.id AND l.apoteka_id = a.id INNER JOIN&#xA;                  Dim_Vrijeme AS dv ON kr.datum_kupovine = dv.datum AND kr.vrijeme_kupovine = dv.sati INNER JOIN&#xA;                  ApotekaDB.dbo.Zaposlenik AS z ON kr.zaposleni_id = z.id" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Source Apoteka"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{C632989F-50F2-49C1-92A9-BAB752E5897C}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Source Apoteka"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Source Apoteka\Dim_Apoteka"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Dim_Apoteka"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Apoteka]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Apoteka\Dim_Apoteka.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Destination]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Destination]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[naziv]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="naziv"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[naziv]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[postanski_broj]"
+                      cachedDataType="i4"
+                      cachedName="postanski_broj"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[postanski_broj]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[grad]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="grad"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[grad]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[drzava]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="drzava"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[drzava]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[ime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="ime"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[ime_vlasnika]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[ime]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[prezime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="prezime"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[prezime_vlasnika]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[prezime]" />
+                    <inputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].Columns[id]"
+                      cachedDataType="i4"
+                      cachedName="id"
+                      externalMetadataColumnId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[apoteka_id]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[id]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[apoteka_id]"
+                      dataType="i4"
+                      name="apoteka_id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[ime_vlasnika]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime_vlasnika" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input].ExternalColumns[prezime_vlasnika]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime_vlasnika" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Source Apoteka\Dim_Apoteka.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Dim_Apoteka.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Dim_Apoteka.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Dim_Apoteka.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Source Apoteka\Source Apoteka"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Source Apoteka"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT a.id, a.naziv, m.postanski_broj, m.naziv AS grad, m.drzava, v.ime, v.prezime
+FROM     Apoteka AS a INNER JOIN
+                  Mjesto AS m ON m.id = a.mjesto_id INNER JOIN
+                  Vlasnik_Apoteke AS v ON v.id = a.vlasnik_id</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Apoteka\Source Apoteka.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Source]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Source]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[naziv]"
+                      name="naziv"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      name="postanski_broj"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[grad]"
+                      name="grad"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[drzava]"
+                      name="drzava"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[ime]"
+                      name="ime"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[prezime]"
+                      name="prezime"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].Columns[id]"
+                      name="id"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      dataType="i4"
+                      name="id" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[id]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[id]"
+                      name="id" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      name="naziv" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      name="postanski_broj" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      name="grad" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      name="drzava" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      name="ime" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      name="prezime" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Source Apoteka.Paths[OLE DB Source Output]"
+              endId="Package\Source Apoteka\Dim_Apoteka.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\Source Apoteka\Source Apoteka.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Source Dobavljac"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{b23d87b4-4f39-4eaf-90f6-e61de2bae7df}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Source Dobavljac"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Source Dobavljac\Dim_Dobavljac"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Dim_Dobavljac"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Dobavljac]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Dobavljac\Dim_Dobavljac.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Destination]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Destination]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].Columns[naziv]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="naziv"
+                      externalMetadataColumnId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[naziv]" />
+                    <inputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].Columns[id]"
+                      cachedDataType="i4"
+                      cachedName="id"
+                      externalMetadataColumnId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[dobavljac_id]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[id]" />
+                    <inputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].Columns[grad]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="grad"
+                      externalMetadataColumnId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[grad]" />
+                    <inputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].Columns[drzava]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="drzava"
+                      externalMetadataColumnId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[drzava]" />
+                    <inputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].Columns[postanski_broj]"
+                      cachedDataType="i4"
+                      cachedName="postanski_broj"
+                      externalMetadataColumnId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[postanski_broj]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[dobavljac_id]"
+                      dataType="i4"
+                      name="dobavljac_id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Source Dobavljac\Dim_Dobavljac.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Dim_Dobavljac.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Dim_Dobavljac.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Dim_Dobavljac.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Source Dobavljac\Source Dobavljac"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Source Dobavljac"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT d.id, d.naziv, m.naziv as grad, m.drzava, m.postanski_broj
+FROM [Dobavljac] AS d
+INNER JOIN [Mjesto] AS m ON m.id = d.mjesto_id;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Dobavljac\Source Dobavljac.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Source]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Source]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[id]"
+                      name="id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[naziv]"
+                      name="naziv"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[grad]"
+                      name="grad"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[drzava]"
+                      name="drzava"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      name="postanski_broj"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      dataType="i4"
+                      name="id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[id]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[id]"
+                      name="id" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      name="naziv" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      name="grad" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      name="drzava" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      name="postanski_broj" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Source Dobavljac.Paths[OLE DB Source Output]"
+              endId="Package\Source Dobavljac\Dim_Dobavljac.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\Source Dobavljac\Source Dobavljac.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Source Kupac"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{67a48ff9-c9cd-4a75-ac7b-65645f454676}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Source Kupac"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Source Kupac\Dim_Kupac"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Dim_Kupac"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Kupac]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Kupac\Dim_Kupac.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Destination]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Destination]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[grad]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="grad"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[grad]" />
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[drzava]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="drzava"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[drzava]" />
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[postanski_broj]"
+                      cachedDataType="i4"
+                      cachedName="postanski_broj"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[postanski_broj]" />
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[id]"
+                      cachedDataType="i4"
+                      cachedName="id"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[kupac_id]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[id]" />
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[ime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="ime"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[ime]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[ime]" />
+                    <inputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].Columns[prezime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="prezime"
+                      externalMetadataColumnId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[prezime]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[prezime]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[kupac_id]"
+                      dataType="i4"
+                      name="kupac_id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input].ExternalColumns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Source Kupac\Dim_Kupac.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Dim_Kupac.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Dim_Kupac.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Dim_Kupac.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Source Kupac\Source Kupac"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Source Kupac"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT k.id, k.ime, k.prezime, m.naziv as grad, m.drzava, m.postanski_broj
+FROM [Kupac] AS k
+INNER JOIN [Mjesto] AS m ON m.id = k.mjesto_id;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Kupac\Source Kupac.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Source]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Source]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[id]"
+                      name="id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[grad]"
+                      name="grad"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[drzava]"
+                      name="drzava"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      name="postanski_broj"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[ime]"
+                      name="ime"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].Columns[prezime]"
+                      name="prezime"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      dataType="i4"
+                      name="id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[id]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[id]"
+                      name="id" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      name="ime" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      name="prezime" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      name="grad" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      name="drzava" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      name="postanski_broj" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Source Kupac.Paths[OLE DB Source Output]"
+              endId="Package\Source Kupac\Dim_Kupac.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\Source Kupac\Source Kupac.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Source Lijek"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{427249A7-CC1F-4885-862F-293BA0612E62}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Source Lijek"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Source Lijek\Dim_Lijek"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Dim_Lijek"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Lijek]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Lijek\Dim_Lijek.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Destination]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Destination]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].Columns[naziv]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="naziv"
+                      externalMetadataColumnId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[naziv]" />
+                    <inputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].Columns[cijena_nabavna]"
+                      cachedDataType="r8"
+                      cachedName="cijena_nabavna"
+                      externalMetadataColumnId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[cijena_nabavna]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_nabavna]" />
+                    <inputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].Columns[cijena_prodajna]"
+                      cachedDataType="r8"
+                      cachedName="cijena_prodajna"
+                      externalMetadataColumnId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[cijena_prodajna]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_prodajna]" />
+                    <inputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].Columns[id]"
+                      cachedDataType="i4"
+                      cachedName="id"
+                      externalMetadataColumnId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[lijek_id]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[id]" />
+                    <inputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].Columns[proizvodjac]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="proizvodjac"
+                      externalMetadataColumnId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[proizvodac]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[proizvodjac]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[lijek_id]"
+                      dataType="i4"
+                      name="lijek_id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[cijena_nabavna]"
+                      dataType="r8"
+                      name="cijena_nabavna" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[cijena_prodajna]"
+                      dataType="r8"
+                      name="cijena_prodajna" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input].ExternalColumns[proizvodac]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="proizvodac" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Source Lijek\Dim_Lijek.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Lijek\Dim_Lijek.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Dim_Lijek.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Lijek\Dim_Lijek.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Source Lijek\Source Lijek"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Source Lijek"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT l.id, l.naziv, l.cijena_nabavna, l.cijena_prodajna, p.naziv AS proizvodjac
+FROM [Lijek] AS l
+INNER JOIN [Proizvodjac] AS p ON p.id = l.proizvodjac_id;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Lijek\Source Lijek.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Source]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Source]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[id]"
+                      name="id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      length="50"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[naziv]"
+                      name="naziv"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_nabavna]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[cijena_nabavna]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_nabavna]"
+                      name="cijena_nabavna"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_prodajna]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[cijena_prodajna]"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[cijena_prodajna]"
+                      name="cijena_prodajna"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[proizvodjac]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[proizvodjac]"
+                      length="50"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].Columns[proizvodjac]"
+                      name="proizvodjac"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      dataType="i4"
+                      name="id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="naziv" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[cijena_nabavna]"
+                      dataType="r8"
+                      name="cijena_nabavna" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[cijena_prodajna]"
+                      dataType="r8"
+                      name="cijena_prodajna" />
+                    <externalMetadataColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output].ExternalColumns[proizvodjac]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="proizvodjac" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[id]"
+                      dataType="i4"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[id]"
+                      name="id" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[naziv]"
+                      name="naziv" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[cijena_nabavna]"
+                      dataType="r8"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[cijena_nabavna]"
+                      name="cijena_nabavna" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[cijena_prodajna]"
+                      dataType="r8"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[cijena_prodajna]"
+                      name="cijena_prodajna" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[proizvodjac]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[proizvodjac]"
+                      name="proizvodjac" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Source Lijek.Paths[OLE DB Source Output]"
+              endId="Package\Source Lijek\Dim_Lijek.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\Source Lijek\Source Lijek.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Source Zaposlenik"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{bb879dec-0ce9-4e5c-bafb-5f7dab0a0567}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Source Zaposlenik"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\Source Zaposlenik\Dim_Zaposlenik"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="Dim_Zaposlenik"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Zaposlenik]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Zaposlenik\Dim_Zaposlenik.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Destination]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Destination]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[grad]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="grad"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[grad]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[drzava]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="drzava"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[drzava]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[postanski_broj]"
+                      cachedDataType="i4"
+                      cachedName="postanski_broj"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[postanski_broj]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[ime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="ime"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[ime]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[ime]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[prezime]"
+                      cachedCodepage="1250"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="prezime"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[prezime]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[prezime]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[plata]"
+                      cachedDataType="r8"
+                      cachedName="plata"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[plata]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[plata]" />
+                    <inputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].Columns[id]"
+                      cachedDataType="i4"
+                      cachedName="id"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[zaposlenik_id]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[id]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[zaposlenik_id]"
+                      dataType="i4"
+                      name="zaposlenik_id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input].ExternalColumns[plata]"
+                      dataType="r8"
+                      name="plata" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\Source Zaposlenik\Dim_Zaposlenik.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Dim_Zaposlenik.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Dim_Zaposlenik.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Dim_Zaposlenik.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\Source Zaposlenik\Source Zaposlenik"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="Source Zaposlenik"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT z.id, z.ime, z.prezime, z.plata, m.naziv as grad, m.drzava, m.postanski_broj
+FROM [Zaposlenik] AS z
+INNER JOIN [Mjesto] AS m ON m.id = z.mjesto_id;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\Source Zaposlenik\Source Zaposlenik.Connections[OleDbConnection]"
+                  connectionManagerID="Package.ConnectionManagers[Apoteka Data Source]"
+                  connectionManagerRefId="Package.ConnectionManagers[Apoteka Data Source]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[id]"
+                      name="id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[grad]"
+                      name="grad"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[drzava]"
+                      name="drzava"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[postanski_broj]"
+                      name="postanski_broj"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[ime]"
+                      name="ime"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[prezime]"
+                      name="prezime"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[plata]"
+                      dataType="r8"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[plata]"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].Columns[plata]"
+                      name="plata"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[id]"
+                      dataType="i4"
+                      name="id" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="grad" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="drzava" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[postanski_broj]"
+                      dataType="i4"
+                      name="postanski_broj" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="ime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      name="prezime" />
+                    <externalMetadataColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output].ExternalColumns[plata]"
+                      dataType="r8"
+                      name="plata" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[id]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[id]"
+                      name="id" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ime]"
+                      name="ime" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[prezime]"
+                      name="prezime" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[plata]"
+                      dataType="r8"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[plata]"
+                      name="plata" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[grad]"
+                      name="grad" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      codePage="1250"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[drzava]"
+                      name="drzava" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[postanski_broj]"
+                      name="postanski_broj" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\Source Zaposlenik.Paths[OLE DB Source Output]"
+              endId="Package\Source Zaposlenik\Dim_Zaposlenik.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\Source Zaposlenik\Source Zaposlenik.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{64EB1AAA-612A-4E25-AEF6-8591F9AD1A2B}"
+      DTS:From="Package\Source Apoteka"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Source Lijek" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{FD6C4425-EEE8-4D39-8F22-9CAD5A8DCFAB}"
+      DTS:From="Package\Source Lijek"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\Source Dobavljac" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{3DE8E436-8C47-491F-8DAF-8233B7553859}"
+      DTS:From="Package\Source Dobavljac"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\Source Kupac" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{76654311-3D93-4980-828E-2EAB7EC8BD1F}"
+      DTS:From="Package\Source Kupac"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\Source Zaposlenik" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{CC208103-C1F5-467A-99DF-1E05FE4EED36}"
+      DTS:From="Package\Source Zaposlenik"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\Build Vrijeme" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{7A24CC64-2F8A-43EA-ABAA-A818639F3FEC}"
+      DTS:From="Package\Build Vrijeme"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\Kreiraj Fact Prodaja" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 6]"
+      DTS:CreationName=""
+      DTS:DTSID="{56036949-62E2-4C2F-BF56-254A848DB28E}"
+      DTS:From="Package\Kreiraj Fact Prodaja"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 6"
+      DTS:To="Package\Kreiraj Fact Nabavka" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 7]"
+      DTS:CreationName=""
+      DTS:DTSID="{F818CB77-90FB-4468-BB0D-4D801C7216E4}"
+      DTS:From="Package\Kreiraj Fact Nabavka"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 7"
+      DTS:To="Package\Kreiraj Fact Promet Zaposlenika" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="140,41.6"
+          Id="Package\Build Vrijeme"
+          TopLeft="351.666652692689,178.533334752189" />
+        <NodeLayout
+          Size="170.4,41.6"
+          Id="Package\Kreiraj Fact Prodaja"
+          TopLeft="341.666653090054,251.333335330751" />
+        <NodeLayout
+          Size="152,41.6"
+          Id="Package\Source Apoteka"
+          TopLeft="37.1666654083464,5.5" />
+        <NodeLayout
+          Size="160,41.6"
+          Id="Package\Source Dobavljac"
+          TopLeft="31.6666654083465,233.133335186111" />
+        <NodeLayout
+          Size="143.2,41.6"
+          Id="Package\Source Kupac"
+          TopLeft="276.666655672922,9.53333340909747" />
+        <NodeLayout
+          Size="136,41.6"
+          Id="Package\Source Lijek"
+          TopLeft="41.3333342936303,125.300000475247" />
+        <NodeLayout
+          Size="164.8,41.6"
+          Id="Package\Source Zaposlenik"
+          TopLeft="339.999986489615,89.2666673760944" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="111.249999850988,47.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,78.2000004752474"
+              Start="0,0"
+              End="0,70.7000004752474">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,70.7000004752474" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="110.499999850988,166.900000475247">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,66.2333347108632"
+              Start="0,0"
+              End="0,58.7333347108632">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,58.7333347108632" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="162.833331048489,233.133335186111">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="131.266660110156,-182.000001777013"
+              Start="0,0"
+              End="131.266660110156,-174.500001777013">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,-49.0811886748701" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,-49.0811886748701"
+                    Point2="0,-53.0811886748701"
+                    Point3="4,-53.0811886748701" />
+                  <mssgle:LineSegment
+                    End="127.266660110156,-53.0811886748701" />
+                  <mssgle:CubicBezierSegment
+                    Point1="127.266660110156,-53.0811886748701"
+                    Point2="131.266660110156,-53.0811886748701"
+                    Point3="131.266660110156,-57.0811886748701" />
+                  <mssgle:LineSegment
+                    End="131.266660110156,-174.500001777013" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="370.799989006255,51.1333334090975">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="51.5999974833596,38.133333966997"
+              Start="0,0"
+              End="51.5999974833596,30.633333966997">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,11.5061512705579" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,11.5061512705579"
+                    Point2="0,15.5061512705579"
+                    Point3="4,15.5061512705579" />
+                  <mssgle:LineSegment
+                    End="47.5999974833596,15.5061512705579" />
+                  <mssgle:CubicBezierSegment
+                    Point1="47.5999974833596,15.5061512705579"
+                    Point2="51.5999974833596,15.5061512705579"
+                    Point3="51.5999974833596,19.5061512705579" />
+                  <mssgle:LineSegment
+                    End="51.5999974833596,30.633333966997" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="422.033319591152,130.866667376094">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47.6666673760945"
+              Start="0,0"
+              End="0,40.1666673760945">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,40.1666673760945" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="424.266652891371,220.133334752189">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,31.2000005785623"
+              Start="0,0"
+              End="0,23.7000005785623">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,23.7000005785623" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="175.2,41.6"
+          Id="Package\Kreiraj Fact Nabavka"
+          TopLeft="568.333310749797,252.200002004306" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 6]"
+          TopLeft="512.066653090054,272.566668667528">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="56.2666576597427,0"
+              Start="0,0"
+              End="48.7666576597427,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="48.7666576597427,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="226.4,41.6"
+          Id="Package\Kreiraj Fact Promet Zaposlenika"
+          TopLeft="549.166644844745,173.200001363754" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 7]"
+          TopLeft="659.149977797271,252.200002004306">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,-37.4000006405513"
+              Start="0,0"
+              End="0,-29.9000006405513">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,-29.9000006405513" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Source Apoteka">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="152,41.6"
+          Id="Package\Source Apoteka\Source Apoteka"
+          TopLeft="7.5,4.5" />
+        <NodeLayout
+          Size="140.8,41.6"
+          Id="Package\Source Apoteka\Dim_Apoteka"
+          TopLeft="37.5,120.5" />
+        <EdgeLayout
+          Id="Package\Source Apoteka.Paths[OLE DB Source Output]"
+          TopLeft="83.5,46.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="24.4,74.4"
+              Start="0,0"
+              End="24.4,66.9">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,33.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,33.2"
+                    Point2="0,37.2"
+                    Point3="4,37.2" />
+                  <mssgle:LineSegment
+                    End="20.4,37.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="20.4,37.2"
+                    Point2="24.4,37.2"
+                    Point3="24.4,41.2" />
+                  <mssgle:LineSegment
+                    End="24.4,66.9" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Apoteka\Dim_Apoteka">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Apoteka\Source Apoteka">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\Source Dobavljac">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="148.8,41.6"
+          Id="Package\Source Dobavljac\Dim_Dobavljac"
+          TopLeft="87.5,113.5" />
+        <NodeLayout
+          Size="160,41.6"
+          Id="Package\Source Dobavljac\Source Dobavljac"
+          TopLeft="7.50000000000003,9.50000000000001" />
+        <EdgeLayout
+          Id="Package\Source Dobavljac.Paths[OLE DB Source Output]"
+          TopLeft="87.5,51.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="74.4,62.4"
+              Start="0,0"
+              End="74.4,54.9">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,27.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,27.2"
+                    Point2="0,31.2"
+                    Point3="4,31.2" />
+                  <mssgle:LineSegment
+                    End="70.4,31.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="70.4,31.2"
+                    Point2="74.4,31.2"
+                    Point3="74.4,35.2" />
+                  <mssgle:LineSegment
+                    End="74.4,54.9" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Dobavljac\Dim_Dobavljac">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Dobavljac\Source Dobavljac">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\Source Kupac">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="143.2,41.6"
+          Id="Package\Source Kupac\Source Kupac"
+          TopLeft="7.50000000000003,9.50000000000001" />
+        <NodeLayout
+          Size="132,41.6"
+          Id="Package\Source Kupac\Dim_Kupac"
+          TopLeft="87.5,113.5" />
+        <EdgeLayout
+          Id="Package\Source Kupac.Paths[OLE DB Source Output]"
+          TopLeft="79.1,51.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="74.4,62.4"
+              Start="0,0"
+              End="74.4,54.9">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,27.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,27.2"
+                    Point2="0,31.2"
+                    Point3="4,31.2" />
+                  <mssgle:LineSegment
+                    End="70.4,31.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="70.4,31.2"
+                    Point2="74.4,31.2"
+                    Point3="74.4,35.2" />
+                  <mssgle:LineSegment
+                    End="74.4,54.9" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Kupac\Dim_Kupac">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Kupac\Source Kupac">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\Source Lijek">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="124,41.6"
+          Id="Package\Source Lijek\Dim_Lijek"
+          TopLeft="87.5,113.5" />
+        <NodeLayout
+          Size="136,41.6"
+          Id="Package\Source Lijek\Source Lijek"
+          TopLeft="7.50000000000003,9.50000000000001" />
+        <EdgeLayout
+          Id="Package\Source Lijek.Paths[OLE DB Source Output]"
+          TopLeft="75.5,51.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="74,62.4"
+              Start="0,0"
+              End="74,54.9">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,27.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,27.2"
+                    Point2="0,31.2"
+                    Point3="4,31.2" />
+                  <mssgle:LineSegment
+                    End="70,31.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="70,31.2"
+                    Point2="74,31.2"
+                    Point3="74,35.2" />
+                  <mssgle:LineSegment
+                    End="74,54.9" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Lijek\Dim_Lijek">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Lijek\Source Lijek">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\Source Zaposlenik">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="164.8,41.6"
+          Id="Package\Source Zaposlenik\Source Zaposlenik"
+          TopLeft="7.50000000000003,9.50000000000001" />
+        <NodeLayout
+          Size="152.8,41.6"
+          Id="Package\Source Zaposlenik\Dim_Zaposlenik"
+          TopLeft="87.5,113.5" />
+        <EdgeLayout
+          Id="Package\Source Zaposlenik.Paths[OLE DB Source Output]"
+          TopLeft="89.9,51.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="74,62.4"
+              Start="0,0"
+              End="74,54.9">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,27.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,27.2"
+                    Point2="0,31.2"
+                    Point3="4,31.2" />
+                  <mssgle:LineSegment
+                    End="70,31.2" />
+                  <mssgle:CubicBezierSegment
+                    Point1="70,31.2"
+                    Point2="74,31.2"
+                    Point3="74,35.2" />
+                  <mssgle:LineSegment
+                    End="74,54.9" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Zaposlenik\Dim_Zaposlenik">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\Source Zaposlenik\Source Zaposlenik">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
